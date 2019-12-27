@@ -59,12 +59,14 @@ Architecture rtl Of UserWrDdr Is
 	signal 	rMtDdrWrReq		: std_logic;
 	signal 	rMtDdrWrBusy	: std_logic_vector( 1 downto 0 );
 	signal 	rMtDdrWrAddr	: std_logic_vector( 28 downto 7 );
-	signal 	rDataCnt		: std_logic_vector( 1 downto 0 ); 	
+	signal 	rDataCnt		: std_logic_vector( 3 downto 0 ); 	
 Begin
 
 ----------------------------------------------------------------------------------
 -- Output assignment
 ----------------------------------------------------------------------------------
+	MtDdrWrReq	<= rMtDdrWrReq;
+	MtDdrWrAddr	<= rMtDdrWrAddr;
 	
 ----------------------------------------------------------------------------------
 -- DFF 
@@ -86,10 +88,9 @@ Begin
 	Begin
 		if( rising_edge(Clk) ) then
 			if( RstB='0') then
-				rMtDdrWrBusy	<= "00";
+				rMtDdrWrBusy	<= '0' & MtDdrWrBusy;
 			else 
-				rMtDdrWrBusy(1)	<= rMtDdrWrBusy(0);
-				rMtDdrWrBusy(0)	<= MtDdrWrBusy;
+				rMtDdrWrBusy	<= rMtDdrWrBusy(0) & MtDdrWrBusy;
 			end if;
 		end if;
 	End Process u_rMtDdrWrBusy;
@@ -98,9 +99,9 @@ Begin
 	Begin
 		if( rising_edge(Clk) ) then
 			if( RstB='0' ) then
-				rMtDdrWrAddr <= (others=>'0');
+				rMtDdrWrAddr( 28 downto 7) <= (others=>'0');
 			else 
-				if( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' and rDataCnt/="10") then
+				if( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' and rDataCnt/="0100") then
 					rMtDdrWrAddr( 28 downto 27 )	<= rMtDdrWrAddr( 28 downto 27 )+1;
 				else 
 					rMtDdrWrAddr( 28 downto 27 )	<= rMtDdrWrAddr( 28 downto 27 );
@@ -117,7 +118,7 @@ Begin
 			else 
 				if(rMtDdrWrBusy(0)='1') then
 					rMtDdrWrReq <= '0';
-				elsif( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' and rDataCnt/="10") then
+				elsif( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' and rDataCnt/="0100") then
 					rMtDdrWrReq	<= '1';
 				else 
 					rMtDdrWrReq <= rMtDdrWrReq;
@@ -130,9 +131,9 @@ Begin
 	Begin
 		if( rising_edge(Clk) ) then
 			if( RstB='0' ) then
-				rDataCnt	<="00";
+				rDataCnt	<="0000";
 			else 
-				if( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' )then
+				if( rMtDdrWrBusy(1)='1' and rMtDdrWrBusy(0)='0' and rDataCnt/="0100")then
 					rDataCnt	<= rDataCnt+1;
 				else 
 					rDataCnt 	<= rDataCnt;

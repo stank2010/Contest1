@@ -132,10 +132,9 @@ Begin
 	Begin
 		if( rising_edge(Clk) ) then
 			if( RstB='0' ) then
-				rMtDdrRdBusy	<= "00";
+				rMtDdrRdBusy	<= '0' & MtDdrRdBusy;
 			else 
-				rMtDdrRdBusy(1) <= rMtDdrRdBusy(0);
-				rMtDdrRdBusy(0)	<= MtDdrRdBusy;
+				rMtDdrRdBusy <=  rMtDdrRdBusy(0) & MtDdrRdBusy;
 			end if;
 		end if;
 	End Process u_rMtDdrRdBusy;
